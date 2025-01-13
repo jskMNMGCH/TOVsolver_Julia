@@ -1,0 +1,44 @@
+# macOS に特有のファイル
+.DS_Store
+
+# Python に関連するファイル
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter Notebook のチェックポイントディレクトリ
+.ipynb_checkpoints/
+
+# バックアップファイル
+*.bak
+*.swp
+*.tmp
+
+# ログファイル
+*.log
+
+# 環境設定や仮想環境
+.env
+.venv/
+env/
+venv/
+*.env
+
+# コンパイル済みバイナリやオブジェクトファイル
+*.out
+*.o
+*.so
+
+# IDE 関連ファイル
+.vscode/
+.idea/
+
+# 特定のディレクトリ（例: build や dist）
+build/
+dist/
+
+# Node.js プロジェクトの場合（不要なら削除）
+node_modules/
+
+# その他の不要なディレクトリやファイルがあれば追加
+
