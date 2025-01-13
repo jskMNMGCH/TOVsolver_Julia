@@ -70,8 +70,10 @@ The piecewise polytropic model approximates the neutron star EoS by dividing it 
 Tidal deformability quantifies how easily a neutron star deforms under an external gravitational field, crucial for gravitational wave studies.
 
 ## References
-- Read et al., "Constraints on a phenomenologically parameterized neutron-star equation of state," Phys. Rev. D, 79, 124032 (2009). DOI: [10.1103/PhysRevD.79.124032](https://doi.org/10.1103/PhysRevD.79.124032)
-
+- J. S. Read, B. D. Lackey, B. J. Owen and J. L. Friedman, Phys. Rev. D 79, 124032 (2009)
+doi:10.1103/PhysRevD.79.124032 [arXiv:0812.2163 [astro-ph]].
+- Y. Fujimoto, K. Fukushima, K. Hotokezaka and K. Kyutoku, Phys. Rev. Lett. 130, no.9, 091404 (2023)
+doi:10.1103/PhysRevLett.130.091404 [arXiv:2205.03882 [astro-ph.HE]].
 ## Contributing
 Feel free to submit issues or pull requests to improve this project.
 
