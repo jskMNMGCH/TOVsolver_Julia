@@ -1,4 +1,4 @@
-# README
+# Tolman–Oppenheimer–Volkoff Equation Solver in Julia
 
 ## Overview
 
@@ -29,9 +29,7 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
   - Defines fixed crust parameters for the EoS.
   - Provides functions to calculate pressure, energy density, and polytropic constants for different density segments.
 - **Key Functions**:
-  - `p_rho_def(rho, K, Gamma)`: Calculates pressure from density using the polytropic relation.
-  - `eps_rho_def(rho, K, Gamma, a)`: Computes energy density for given density and model parameters.
-  - `calc_outerEoS()`: Computes parameters for the outer crust.
+  - `get_all_params(log_p1, Gamma; p_c=fixed_crust)`: Computes all parameters required to describe the equations of state.
   - `make_polyEos(rho_lim_arr, a_arr, ...)`: Constructs energy density and pressure arrays for the entire density range.
 
 ### 4. `constants.jl`
