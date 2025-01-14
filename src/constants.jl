@@ -1,12 +1,16 @@
+"""
+This code is written in Geometrized unit system!
+"""
 # Physical constants
 const c = 2.99792458e10  # [cm/sec]
 const G = 6.67428e-8  # [cm^3 /(g sec^2)]
 const Msun = 1.9884e33  # [g]
 const hbarc = 197.32698044404107 # [MeV fm]
 
-# normalization constants
-const unit_l = G * Msun / c^2
-const ε_ref = Msun / unit_l^3
+# normalization constants. Geometrized unit system!
+const unit_g = c^2/G
+const unit_l = 1.0
+const eps_ref = c^4/G
 
 # unit conversion factor
 const dyncm2_to_MeVfm3 = 1.0/(1.602176634e33)

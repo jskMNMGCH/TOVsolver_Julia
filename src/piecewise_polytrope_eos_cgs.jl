@@ -1,3 +1,7 @@
+"""
+This code is written in Geometrized unit system!
+Note that the argument of 'log_p1', where p1 has units of dyn/cm^2.
+"""
 module PiecePoly
 
 """
@@ -9,10 +13,6 @@ Benjamin J. Owen (Granada U., Theor. Phys. Astrophys. and Penn State U.), John L
 e-Print: 0812.2163 [astro-ph]
 DOI: 10.1103/PhysRevD.79.124032
 Published in: Phys.Rev.D 79 (2009), 124032
-"""
-
-"""
-In this code, CGS units are expected.
 """
 
 # include files
@@ -41,7 +41,7 @@ function p_rho_def(rho, K, Gamma)
     Returns:
     - Pressure corresponding to the given density.
     """
-    return K * rho^Gamma
+    return K * (rho^Gamma)
 end
 
 function eps_rho_def(rho, K, Gamma, a)
@@ -55,7 +55,7 @@ function eps_rho_def(rho, K, Gamma, a)
     Returns:
     - Energy density corresponding to the given density.
     """
-    return (1.0 + a) * rho + K * rho^Gamma / (Gamma - 1.0)
+    return (1.0 + a) * rho + K * (rho^Gamma) / (Gamma - 1.0)
 end
 
 function a_def(pre_eps_lim, pre_rho_lim, K, Gamma; param_crust=fixed_crust)
@@ -72,7 +72,7 @@ function a_def(pre_eps_lim, pre_rho_lim, K, Gamma; param_crust=fixed_crust)
     if pre_eps_lim <= eps_rho_def(param_crust[1][2], param_crust[1][4], param_crust[1][3], 0.0)
         return 0.0
     else
-        return pre_eps_lim / pre_rho_lim - 1.0 - K * pre_rho_lim^(Gamma - 1.0) / (Gamma - 1.0)
+        return pre_eps_lim / pre_rho_lim - 1.0 - K * (pre_rho_lim^(Gamma - 1.0)) / (Gamma - 1.0)
     end
 end
 
@@ -86,7 +86,7 @@ function next_K_def(p_lim, rho_lim, next_Gamma)
     Returns:
     - Polytropic constant `K` for the next segment.
     """
-    return p_lim / rho_lim^next_Gamma
+    return p_lim / (rho_lim^next_Gamma)
 end
 
 function calc_K1_rhob(log_p1, Gamma1; K_crust=fixed_crust[4][4], Gamma_crust=fixed_crust[4][3], param_bound=fixed_ρ_bounds)

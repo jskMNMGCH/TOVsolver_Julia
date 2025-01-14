@@ -1,3 +1,6 @@
+"""
+This code is written in Geometrized unit system!
+"""
 module SolverCode
 
 # Julia packages
@@ -40,9 +43,7 @@ function tidal_deformability(y, M, R)
     """
     C = M / R
     # println("Compactness ", C)
-    Eps = 2.0 * C * (6.0 - 3.0 * y + 3.0 * C * (5.0 * y - 8.0)) 
-        + 4.0 * C^3 * (13.0 - 11.0 * y + C * (3.0 * y - 2.0) + 2.0 * C^2 * (1.0 + y))
-        + 3.0 * (1.0 - 2.0 * C)^2 * (2.0 - y + 2.0 * C * (y - 1.0))*log(1.0 - 2.0 * C) 
+    Eps = (2.0 * C * (6.0 - 3.0 * y + 3.0 * C * (5.0 * y - 8.0)) + 4.0 * C^3 * (13.0 - 11.0 * y + C * (3.0 * y - 2.0) + 2.0 * C^2 * (1.0 + y)) + 3.0 * (1.0 - 2.0 * C)^2 * (2.0 - y + 2.0 * C * (y - 1.0))*log(1.0 - 2.0 * C))
     
     tidal_def = 16.0 / (15.0 * Eps) * (1.0 - 2.0 * C)^2 * (2.0 + 2.0 * C * (y - 1.0) - y)
     #println("(Eps, y, tidal) = ($(Eps), $(y), $(tidal_def))")
@@ -69,24 +70,24 @@ function TOV_def!(du, u, p, t)
     pres, m, h, b = u
     
     idx_now = searchsortedfirst(Pres, pres)
-    if idx_now > length(Pres)
-        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*ε_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
-        idx_now = length(Pres)
+    if idx_now >= length(Pres)
+        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        idx_now = length(Pres)-1
     elseif idx_now <= 1
-        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*ε_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
         idx_now = 2
     end
     s = (pres - Pres[idx_now-1])/(Pres[idx_now]-Pres[idx_now-1])
     eps = (s*E[idx_now] + (1.0-s)*E[idx_now-1])  # [cm^-2]
-    f = (E[idx_now]-E[idx_now-1])/(Pres[idx_now]-Pres[idx_now-1]) # []
-    # 線形補完 eps の値をとっているので 後進差分で f を計算するのは 正しい
+    f = (E[idx_now+1]-E[idx_now])/(Pres[idx_now+1]-Pres[idx_now]) # []
+    # f = ()
     
-    dpdr = -(eps + pres) * (m + 4.0 * π * t^3 * pres) / (t * (t - 2.0 * m))  # [cm^-3]
+    dpdr = -(eps + pres) * (m + 4.0 * π * t^3 * pres) / (t*m *(t/m - 2.0))  # [cm^-3]
     dmdr = 4.0 * π * t^2 * eps  # []
-    dhdr = b  # []
-    dbdr = 2.0*(1.0-2.0*m/t)^-1*h*(-2.0*π*(5.0*eps + 9.0*pres + f*(eps+pres)) 
-        + 3.0/t^2 + 2.0*(1.0-2.0*m/t)^-1*(m/t^2 + 4.0*π*t*pres)^2) 
-        + 2.0*b/t * (1.0-2.0*m/t)^-1*(-1.0 + m/t + 2.0*π*t^2*(eps-pres))  # []
+    dhdr = b  # [cm]
+    dbdr = ( 2.0*(1.0-2.0*m/t)^-1*h*(-2.0*π*(5.0*eps + 9.0*pres + f*(eps+pres)) 
+        + 3.0/t^2 + 2.0*(1.0-2.0*m/t)^-1*(1/t^2)*(m/t + 4.0*π*t^2*pres)^2) 
+        + 2.0*b/t * (1.0-2.0*m/t)^-1*(-1.0 + m/t + 2.0*π*t^2*eps-pres) )# []
 
     if debug_flag
         Debug([eps, pres, f])
@@ -106,8 +107,8 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
     The function iterates over a radial grid, solving the TOV equations numerically with an ODE solver and returns the radius, mass, and tidal deformability.
     Args:
         center_idx (int): The index in the density and pressure arrays, corresponding to the central density and pressure.
-        ε (array): Array of energy densities (dimensionless, scaled by ε_ref).
-        pres (array): Array of pressures (dimensionless, scaled by ε_ref).
+        ε (array): Array of energy densities ([1/cm^2], [g/cm^3] is scaled by eps_ref [g/cm]).
+        pres (array): Array of pressures ([1/cm^2], [g/cm^3] is scaled by eps_ref [g/cm]).
         debug_flag (bool): A flag to enable debugging output.
     Returns:
         Tuple:
@@ -139,7 +140,7 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
     # 問題を定義
     prob = ODEProblem(TOV_def!, u0, tspan, p)
     # 数値積分を実行
-    sol = solve(prob, Tsit5(), dt=dr, dtmax=dr, callback=cb)
+    sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr) # Tsit5()
 
     # 最終状態を取得
     final_state = sol[end]
@@ -158,7 +159,7 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
     # Tidal deformability の計算
     y = R * final_state[4] / final_state[3] - 4.0*π*R^3*ε_surface/M  # if EoS has non-zero ε, the 2nd term of y is important!
     Λ = tidal_deformability(y, M, R)
-    return [R*unit_l/10^5, M, Λ], sol
+    return [R*unit_l/10^5, M*unit_g/Msun, Λ], sol
 end
 
 end  # end of SolverCode

@@ -13,6 +13,7 @@ __pycache__/
 *.bak
 *.swp
 *.tmp
+*-Copy[0-9]*.ipynb
 
 # ログファイル
 *.log
