@@ -54,7 +54,7 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
 2. Prepare energy density and pressure data.
 3. Call `out_RMT` to calculate stellar properties:
    ```julia
-   results, solutions = MainModule.out_RMT(ε, pres)
+   RMT, solution = MainModule.out_RMT(ε, pres)
    ```
 4. Plot results (given in the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
   ![Sample MR plots](fig/PiecewisePolys_MR.png)
