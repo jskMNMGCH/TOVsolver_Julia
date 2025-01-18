@@ -51,10 +51,13 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
    include("main.jl")
    using .MainModule
    ```
-2. Prepare energy density and pressure data.
+2. Prepare energy density and pressure data (cgs geometrized unit system!):
+   ```julia
+   mono_e, mono_pres = MainModule.make_eos_monotonic(energy_density, pressure)
+   ```
 3. Call `out_RMT` to calculate stellar properties:
    ```julia
-   RMT, solution = MainModule.out_RMT(ε, pres)
+   RMT, solution = MainModule.out_RMT(mono_e, mono_pres)
    ```
 4. Plot results (given in the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
   ![Sample MR plots](fig/PiecewisePolys_MR.png)
