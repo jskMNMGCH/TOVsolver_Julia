@@ -56,6 +56,9 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
    ```julia
    results, solutions = MainModule.out_RMT(ε, pres)
    ```
+4. Plot results.
+  ![Sample MR plots](fig/PiecewisePolys_MR.png)
+  ![Sample MT plots](fig/PiecewisePolys_MT.png)
 
 ## Key Concepts
 
