@@ -2,7 +2,10 @@
 
 ## Overview
 
-This project provides a Julia implementation for solving the Tolman–Oppenheimer–Volkoff (TOV) equations and related astrophysical calculations. It uses a piecewise polytropic equation of state (EoS) to model neutron stars, calculates their mass, radius, and tidal deformability, and includes utilities for managing the EoS data.
+This project provides a Julia implementation for solving the Tolman–Oppenheimer–Volkoff (TOV) equations. It uses equation of state (EoS) to model compact stars (e.g. neutron star, quark star) and calculates their mass, radius, and tidal deformability (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)). In addition, this project includes the Julia code to generate piecewise polytrope EoS.
+  
+  ![Sample MR plots](fig/PiecewisePolys_MR.png)
+  ![Sample MT plots](fig/PiecewisePolys_MT.png)
 
 ## Files and Modules
 
@@ -59,9 +62,7 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
    ```julia
    RMT, solution = MainModule.out_RMT(mono_e, mono_pres)
    ```
-4. Plot results (given in the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
-  ![Sample MR plots](fig/PiecewisePolys_MR.png)
-  ![Sample MT plots](fig/PiecewisePolys_MT.png)
+4. Plot results (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
 
 ## Key Concepts
 
