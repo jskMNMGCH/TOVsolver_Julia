@@ -68,9 +68,10 @@ In addition, this project includes the Julia code to generate a piecewise polytr
    ```julia
    RMT, solution = MainModule.out_RMT(mono_e/unit_g, mono_pres/unit_g)
    ```
+4. Plot results (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
+   
    ![Sample MR](fig/KF_MR.png)
    ![Sample MT](fig/KF_MT.png)
-4. Plot results (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
 
 ## Key Concepts
 
