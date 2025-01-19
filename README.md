@@ -85,6 +85,8 @@ The piecewise polytropic model approximates the neutron star EoS by dividing it 
 Tidal deformability quantifies how easily a compact star deforms under an external gravitational field, crucial for gravitational wave studies.
 
 ## References
+- T. Hinderer, B. D. Lackey, R. N. Lang and J. S. Read, Phys. Rev. D 81, 123016 (2010)
+doi:10.1103/PhysRevD.81.123016 [arXiv:0911.3535 [astro-ph.HE]].
 - J. S. Read, B. D. Lackey, B. J. Owen and J. L. Friedman, Phys. Rev. D 79, 124032 (2009)
 doi:10.1103/PhysRevD.79.124032 [arXiv:0812.2163 [astro-ph]].
 - Y. Fujimoto, K. Fukushima, K. Hotokezaka and K. Kyutoku, Phys. Rev. Lett. 130, no.9, 091404 (2023)
