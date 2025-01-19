@@ -58,15 +58,15 @@ In addition, this project includes the Julia code to generate a piecewise polytr
    include("main.jl")
    using .MainModule
    ```
-2. Prepare energy density and pressure data (in this example, `mono_e` and `mono_pres` are given in [g/cm^3]):
+2. Prepare energy density and pressure data (in this example, `energy_density` and `pressure` are given in [g/cm^3]):
    ```julia
-   mono_e, mono_pres = MainModule.make_eos_monotonic(energy_density, pressure)
+   energy_density, pressure = MainModule.make_eos_monotonic(energy_density, pressure)
    ```
    ![Sample EoS](fig/KF_EoS.png)
 3. Call `out_RMT` to calculate stellar properties (This input EoS should be in geometrized unit system, where distances are expressed in centimeters [cm]).
-   If `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs shoulds be `energy_density/unit_g` and `pressure/unit_g [1/cm^3]`:
+   If `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs should be `energy_density/unit_g` and `pressure/unit_g [1/cm^3]`:
    ```julia
-   RMT, solution = MainModule.out_RMT(mono_e/unit_g, mono_pres/unit_g)
+   RMT, solution = MainModule.out_RMT(energy_density/unit_g, pressure/unit_g)
    ```
 4. Plot results contained in `RMT` (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)):
    
