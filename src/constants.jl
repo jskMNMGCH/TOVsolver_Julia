@@ -1,5 +1,8 @@
 """
-This code is written in Geometrized unit system!
+The 'main.jl' is written in Geometrized unit system, where distances are expressed in centimeters [cm].
+If energy_density and pressure are given in [g/cm^3] unit, 
+the inputs shoulds be energy_density/g_unit and pressure/g_unit [1/cm^3].
+On the other hand, the 'piecewise_polytrope_eos_cgs.jl' is written in CGS unit.
 """
 # Physical constants
 const c = 2.99792458e10  # [cm/sec]

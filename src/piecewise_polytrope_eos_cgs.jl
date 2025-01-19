@@ -1,6 +1,6 @@
 """
-This code is written in Geometrized unit system!
-Note that the argument of 'log_p1', where p1 has units of dyn/cm^2.
+This code is written in CGS unit system!
+In accordance with convention, the argument of 'log_p1', where p1 has units of dyn/cm^2.
 """
 module PiecePoly
 

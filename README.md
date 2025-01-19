@@ -2,7 +2,8 @@
 
 ## Overview
 
-This project provides a Julia implementation for solving the Tolman–Oppenheimer–Volkoff (TOV) equations. It uses equation of state (EoS) to model compact stars (e.g. neutron star, quark star) and calculates their mass, radius, and tidal deformability (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)). In addition, this project includes the Julia code to generate piecewise polytrope EoS.
+This project provides a Julia implementation for solving the Tolman–Oppenheimer–Volkoff (TOV) equations. It uses equation of state (EoS) to model compact stars (e.g. neutron star, quark star) and calculates their mass, radius, and tidal deformability (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)). In addition, this project includes the Julia code to generate piecewise polytrope EoS. Input EoS should be in the geometrized unit system, where distances are expressed in centimeters [cm].
+If energy_density and pressure are given in [g/cm^3] unit, the inputs shoulds be energy_density/g_unit and pressure/g_unit [1/cm^3].
   
   ![Sample MR plots](fig/PiecewisePolys_MR.png)
   ![Sample MT plots](fig/PiecewisePolys_MT.png)
@@ -13,7 +14,7 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
 - **Purpose**: Acts as the main entry point for calculations.
 - **Key Functions**:
   - `make_eos_monotonic(e, P)`: Processes energy density (`e`) and pressure (`P`) arrays to ensure monotonicity by removing non-physical regions.
-  - `out_RMT(ε, pres; ...)`: Solves the TOV equations to compute radius, mass, and tidal deformability for given energy densities (`ε`) and pressures (`pres`).
+  - `out_RMT(ε, pres; ...)`: Solves the TOV equations to compute radius, mass, and tidal deformability for given energy densities  (`ε`) [1/cm^3] and pressures (`pres`) [1/cm^3].
 - **Dependencies**: 
   - `solver_code.jl` for solving the TOV equations.
 
@@ -22,15 +23,15 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
 - **Key Functions**:
   - `Debug(input_list; base_filename)`: Logs data for debugging.
   - `tidal_deformability(y, M, R)`: Computes tidal deformability given dimensionless compactness and stellar properties.
-  - `solveTOV_RMT(center_idx, ε, pres, debug_flag)`: Solves the TOV equations for a given central density and pressure using an ODE solver.
+  - `solveTOV_RMT(center_idx, ε, pres, debug_flag)`: Solves the TOV equations for a given central density [1/cm^3] and pressure [1/cm^3] using an ODE solver.
   - `TOV_def!(...)`: Defines the TOV differential equations.
 - **Dependencies**: Relies on `DifferentialEquations.jl` for ODE solving.
 
 ### 3. `piecewise_polytrope_eos_cgs.jl`
-- **Purpose**: Implements the piecewise polytropic EoS framework in CGS units.
+- **Purpose**: Implements the piecewise polytropic EoS framework in the CGS unit system!
 - **Key Features**:
   - Defines fixed crust parameters for the EoS.
-  - Provides functions to calculate pressure, energy density, and polytropic constants for different density segments.
+  - Provides functions to calculate pressure [g/cm^3], energy density [g/cm^3], and polytropic constants for different density segments.
 - **Key Functions**:
   - `get_all_params(log_p1, Gamma; p_c=fixed_crust)`: Computes all parameters required to describe the equations of state.
   - `make_polyEos(rho_lim_arr, a_arr, ...)`: Constructs energy density and pressure arrays for the entire density range.
@@ -54,7 +55,8 @@ This project provides a Julia implementation for solving the Tolman–Oppenheime
    include("main.jl")
    using .MainModule
    ```
-2. Prepare energy density and pressure data (cgs geometrized unit system!):
+2. Prepare energy density and pressure data (geometrized unit system, where distances are expressed in centimeters [cm]).
+   If energy_density and pressure are given in [g/cm^3] unit, the inputs shoulds be energy_density/g_unit and pressure/g_unit [1/cm^3]:
    ```julia
    mono_e, mono_pres = MainModule.make_eos_monotonic(energy_density, pressure)
    ```
@@ -77,7 +79,7 @@ The piecewise polytropic model approximates the neutron star EoS by dividing it 
 \[ P(\rho) = K \rho^\Gamma \]
 
 ### 3. Tidal Deformability
-Tidal deformability quantifies how easily a neutron star deforms under an external gravitational field, crucial for gravitational wave studies.
+Tidal deformability quantifies how easily a compact star deforms under an external gravitational field, crucial for gravitational wave studies.
 
 ## References
 - J. S. Read, B. D. Lackey, B. J. Owen and J. L. Friedman, Phys. Rev. D 79, 124032 (2009)
