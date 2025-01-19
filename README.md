@@ -91,6 +91,8 @@ doi:10.1103/PhysRevD.81.123016 [arXiv:0911.3535 [astro-ph.HE]].
 doi:10.1103/PhysRevD.79.124032 [arXiv:0812.2163 [astro-ph]].
 - Y. Fujimoto, K. Fukushima, K. Hotokezaka and K. Kyutoku, Phys. Rev. Lett. 130, no.9, 091404 (2023)
 doi:10.1103/PhysRevLett.130.091404 [arXiv:2205.03882 [astro-ph.HE]].
+- G. Baym, T. Hatsuda, T. Kojo, P. D. Powell, Y. Song and T. Takatsuka, Rept. Prog. Phys. 81, no.5,
+056902 (2018) doi:10.1088/1361-6633/aaae14 [arXiv:1707.04966 [astro-ph.HE]].
 ## Contributing
 Feel free to submit issues or pull requests to improve this project.
 
