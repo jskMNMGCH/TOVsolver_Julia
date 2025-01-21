@@ -94,6 +94,8 @@ doi:10.1103/PhysRevD.79.124032 [arXiv:0812.2163 [astro-ph]].
 doi:10.1103/PhysRevLett.130.091404 [arXiv:2205.03882 [astro-ph.HE]].
 - G. Baym, T. Hatsuda, T. Kojo, P. D. Powell, Y. Song and T. Takatsuka, Rept. Prog. Phys. 81, no.5,
 056902 (2018) doi:10.1088/1361-6633/aaae14 [arXiv:1707.04966 [astro-ph.HE]].
+- B. P. Abbott et al. [LIGO Scientific and Virgo], Phys. Rev. Lett. 121, no.16, 161101 (2018)
+doi:10.1103/PhysRevLett.121.161101 [arXiv:1805.11581 [gr-qc]].
 ## Contributing
 Feel free to submit issues or pull requests to improve this project.
 
