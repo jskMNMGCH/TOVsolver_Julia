@@ -32,7 +32,7 @@ fixed_ρ_bounds = [10^14.7, 10^15]
 # export fixed_crust, fixed_ρ_bounds
 
 function p_rho_def(rho, K, Gamma)
-    """
+"""
     Computes the pressure as a function of density, based on the polytropic relation.
     Inputs:
     - `rho`: Density.
@@ -40,12 +40,12 @@ function p_rho_def(rho, K, Gamma)
     - `Gamma`: Polytropic index.
     Returns:
     - Pressure corresponding to the given density.
-    """
+"""
     return K * (rho^Gamma)
 end
 
 function eps_rho_def(rho, K, Gamma, a)
-    """
+"""
     Calculates the energy density as a function of density, using a specific polytropic model.
     Inputs:
     - `rho`: Density.
@@ -54,12 +54,12 @@ function eps_rho_def(rho, K, Gamma, a)
     - `a`: Constant related to energy contributions.
     Returns:
     - Energy density corresponding to the given density.
-    """
+"""
     return (1.0 + a) * rho + K * (rho^Gamma) / (Gamma - 1.0)
 end
 
 function a_def(pre_eps_lim, pre_rho_lim, K, Gamma; param_crust=fixed_crust)
-    """
+"""
     Determines the parameter `a`, which adjusts the energy density at given density and pressure limits.
     Inputs:
     - `pre_eps_lim`: Energy density at the lower limit.
@@ -68,7 +68,7 @@ function a_def(pre_eps_lim, pre_rho_lim, K, Gamma; param_crust=fixed_crust)
     - `Gamma`: Polytropic index.
     Returns:
     - Parameter `a`.
-    """
+"""
     if pre_eps_lim <= eps_rho_def(param_crust[1][2], param_crust[1][4], param_crust[1][3], 0.0)
         return 0.0
     else
@@ -77,7 +77,7 @@ function a_def(pre_eps_lim, pre_rho_lim, K, Gamma; param_crust=fixed_crust)
 end
 
 function next_K_def(p_lim, rho_lim, next_Gamma)
-    """
+"""
     Calculates the polytropic constant `K` for the next density segment.
     Inputs:
     - `p_lim`: Pressure at the upper boundary of the current segment.
@@ -85,12 +85,12 @@ function next_K_def(p_lim, rho_lim, next_Gamma)
     - `next_Gamma`: Polytropic index for the next segment.
     Returns:
     - Polytropic constant `K` for the next segment.
-    """
+"""
     return p_lim / (rho_lim^next_Gamma)
 end
 
 function calc_K1_rhob(log_p1, Gamma1; K_crust=fixed_crust[4][4], Gamma_crust=fixed_crust[4][3], param_bound=fixed_ρ_bounds)
-    """
+"""
     Computes the initial polytropic constant `K1` and baryon density `rho_b` for the first inner segment.
     Inputs:
     - `log_p1`: Logarithm of the pressure at the first deviding density. [dyn/cm^2] = [c^2 g/cm^3]
@@ -100,20 +100,20 @@ function calc_K1_rhob(log_p1, Gamma1; K_crust=fixed_crust[4][4], Gamma_crust=fix
     Returns:
     - `K1`: Initial polytropic constant.
     - `rho_b`: Baryon density at the transition.
-    """
+"""
     K1 = 10^log_p1 / c^2 / param_bound[1]^Gamma1  # [dyn/cm^2] = [c^2 g/cm^3]
     rho_b = (K_crust / K1)^(1.0 / (Gamma1 - Gamma_crust))
     return K1, rho_b
 end
 
 function calc_outerEoS(;param_crust=fixed_crust)
-    """
+"""
     Calculates the list of `a` parameters for the outer crust equations of state.
     Inputs:
     - `param_crust`: Parameters for the crust segments (default to `fixed_crust`).
     Returns:
     - List of `a` parameters for the outer crust.
-    """
+"""
     a_crust_list = [0.0]
     eps_pre_crust = eps_rho_def(param_crust[1][2], param_crust[1][4], param_crust[1][3], 0.0)
 
@@ -129,7 +129,7 @@ function calc_outerEoS(;param_crust=fixed_crust)
 end
 
 function param_of_innerEoS(log_p1, Gamma; param_c=fixed_crust, param_bound=fixed_ρ_bounds)
-    """
+"""
     Defines the parameters for the inner equations of state based on polytropic segments.
     Inputs:
     - `log_p1`: Logarithm of the transition pressure.
@@ -137,7 +137,7 @@ function param_of_innerEoS(log_p1, Gamma; param_c=fixed_crust, param_bound=fixed
     - `param_c`: Parameters for the crust (default to `fixed_crust`).
     Returns:
     - Lists of density limits, `a` parameters, and polytropic constants for the inner EoS.
-    """
+"""
     K1, rhob = calc_K1_rhob(log_p1, Gamma[1])
     rho_lim_list = [rhob, param_bound[1], param_bound[2], Inf]
     K_list = [K1]
@@ -164,7 +164,7 @@ end
 
 
 function joint_params(rho_lim_l, a_l, K_l; par_crust=fixed_crust)
-    """
+"""
     Combines the crust and inner equations of state parameters into a single set of lists.
     Inputs:
     - `rho_lim_l`: Density limits from the inner EoS.
@@ -173,7 +173,7 @@ function joint_params(rho_lim_l, a_l, K_l; par_crust=fixed_crust)
     - `par_crust`: Crust parameters (default to `fixed_crust`).
     Returns:
     - Combined density limits, `a` parameters, and polytropic constants.
-    """
+"""
     rho_lim_all = vcat([c[2] for c in par_crust[1:end-1]], rho_lim_l)
     a_all = vcat(calc_outerEoS(param_crust=par_crust), a_l)
     K_all = vcat([c[4] for c in par_crust], K_l)
@@ -182,7 +182,7 @@ end
 
 
 function get_all_params(log_p1, Gamma; p_c=fixed_crust)
-    """
+"""
     Computes all parameters required to describe the equations of state.
     Inputs:
     - `log_p1`: Logarithm of the transition pressure.
@@ -190,7 +190,7 @@ function get_all_params(log_p1, Gamma; p_c=fixed_crust)
     - `p_c`: Parameters for the crust (default to `fixed_crust`).
     Returns:
     - Density limits, `a` parameters, polytropic constants, and polytropic indices for the full EoS.
-    """
+"""
     rho, a, k = param_of_innerEoS(log_p1, Gamma)
     rho_lim_all, a_all, K_all = joint_params(rho, a, k)
     Gamma_all = vcat([c[3] for c in p_c], Gamma)
@@ -198,7 +198,7 @@ function get_all_params(log_p1, Gamma; p_c=fixed_crust)
 end
 
 function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, final_rho=1e18)
-    """
+"""
     Function to create a piecewise polytropic equation of state (EoS).
     
     Arguments:
@@ -218,7 +218,7 @@ function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, fina
     This function constructs energy density (`ε`) and pressure (`p`) values for a range of densities
     using piecewise polytropic equations. Each density segment is processed individually based on
     the provided parameters.
-    """
+"""
     ε = []
     p = []
     if rho_lim_arr[end] == Inf

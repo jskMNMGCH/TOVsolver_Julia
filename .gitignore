@@ -14,6 +14,7 @@ __pycache__/
 *.swp
 *.tmp
 *-Copy[0-9]*.ipynb
+*-Ignore.ipynb
 
 # ログファイル
 *.log
