@@ -37,7 +37,7 @@ function make_eos_monotonic(e, P)
     return mono_e, mono_P
 end
 
-function out_RMT(ε, pres; debug=false, min_pc=1.0*MeVfm3_to_gcm3/unit_g, max_pc=1.3e3*MeVfm3_to_gcm3/unit_g, num_pc=100)
+function out_RMT(ε, pres; debug=false, min_pc=3.0*MeVfm3_to_gcm3/unit_g, max_pc=1.3e3*MeVfm3_to_gcm3/unit_g, num_pc=50)
 """ 
     This function calculates the radius, mass, and tidal deformability by solving the Tolman–Oppenheimer–Volkoff (TOV) equations for a given set of energy densities (`ε`) and pressures (`pres`).
     
@@ -53,18 +53,19 @@ function out_RMT(ε, pres; debug=false, min_pc=1.0*MeVfm3_to_gcm3/unit_g, max_pc
             - `Λ` (1D array): Array of tidal deformabilities corresponding to the input densities.
             - `sol_list` (1D array): List of solutions for each central density.
 """
-    R = []
-    M = []
-    Λ = []
-    sol_list = []
-    # The dimensionless pressure 2.9e-6 corresponds to about 1.0 MeV/fm^3 in QHC18_gv100H16.
+    # The dimensionless pressure 2.9e-6 corresponds to about 3.0 MeV/fm^3 in QHC18_gv100H16.
     # The dimensionless pressure 3.8e-3 corresponds to about 1300 MeV/fm^3 in QHC18_gv100H16.
     min_pc_id = searchsortedfirst(pres, min_pc)
     max_pc_id = min(searchsortedfirst(pres, max_pc), length(pres)-1)
     len = min(max_pc_id-min_pc_id, num_pc)
     pc_indices = round.(Int, range(min_pc_id, max_pc_id, length=len))
+
+    R = Vector{Float64}(undef, len)
+    M = Vector{Float64}(undef, len)
+    Λ = Vector{Float64}(undef, len)
+    sol_list = []
     
-    for i in pc_indices[end:-1:1]
+    for (j, i) in enumerate(pc_indices[end:-1:1])
         if i == pc_indices[end] && debug
             debug_flag = true
         else
@@ -73,15 +74,24 @@ function out_RMT(ε, pres; debug=false, min_pc=1.0*MeVfm3_to_gcm3/unit_g, max_pc
         
         try
             result, sol = SolverCode.solveTOV_RMT(i, ε, pres, debug_flag)
-            push!(R, result[1]) 
-            push!(M, result[2])  
-            push!(Λ, result[3])
+            R[j] = result[1]
+            M[j] = result[2]
+            Λ[j] = result[3]
             push!(sol_list, sol)
         catch e
             println("Error at i = $i")
         end
     end
     return [R, M, Λ], sol_list
+end
+
+function out_RMT_point(ε, pres, center_pres; debug=false)
+    i = searchsortedfirst(pres, center_pres)
+    result, sol = SolverCode.solveTOV_RMT(i, ε, pres, debug)
+    R = result[1]
+    M = result[2]  
+    Λ = result[3]
+    return [R, M, Λ], sol
 end
 
 function cs(energy_density, pressure)

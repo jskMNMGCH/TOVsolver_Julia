@@ -73,10 +73,10 @@ function TOV_def!(du, u, p, t)
     
     idx_now = searchsortedfirst(Pres, pres)
     if idx_now >= length(Pres)
-        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        println("idx_end_point appears: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
         idx_now = length(Pres)-1
     elseif idx_now <= 1
-        println("idx_end_point appear: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        println("idx_start_point appears: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
         idx_now = 2
     end
     s = (pres - Pres[idx_now-1])/(Pres[idx_now]-Pres[idx_now-1])
