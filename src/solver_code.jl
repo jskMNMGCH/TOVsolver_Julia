@@ -101,7 +101,7 @@ function TOV_def!(du, u, p, t)
     du[4] = dbdr
 end
 
-function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float64=1e2)
+function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float64=1e3)
 """
     This function solves the Tolman–Oppenheimer–Volkoff (TOV) equations for a given central density and pressure 
     to calculate the radius, mass, and tidal deformability of a compact object. 
