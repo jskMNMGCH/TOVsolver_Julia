@@ -101,7 +101,6 @@ function TOV_def!(du, u, p, t)
     du[4] = dbdr
 end
 
-
 function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float64=1e2)
 """
     This function solves the Tolman–Oppenheimer–Volkoff (TOV) equations for a given central density and pressure 
@@ -119,9 +118,9 @@ function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float
             - `Λ` (float): The tidal deformability of the object (dimensionless).
             - `sol` (array): The solution of the ODE at each step.
 """ 
-    # set initial state and parameters
+    # Set initial state and parameters
     r = 1e-17  # [cm]
-    dr = max_dr  # step value
+    dr = max_dr  # Step size
     dhdr = dr
     
     p0 = pres[center_idx]
@@ -134,44 +133,46 @@ function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float
     p = (ε, pres, debug_flag)
     tspan = (r, Inf)
 
-    # コールバックの設定
-    condition(u, t, integrator) = u[1] > p_surface # 条件を満たす時のみ積分を進める
-    affect!(integrator) = terminate!(integrator)  # 終了命令
+    # Set up the callback
+    condition(u, t, integrator) = u[1] > p_surface  # Integrate only while the condition is satisfied
+    affect!(integrator) = terminate!(integrator)  # Termination command
     cb = ContinuousCallback(condition, affect!)
-    # 問題を定義
+    
+    # Define the problem
     prob = ODEProblem(TOV_def!, u0, tspan, p)
-    # 数値積分を実行
-    sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6) # maxiters=1e5 (default)
+    
+    # Perform numerical integration
+    sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6)  # maxiters=1e5 (default)
 
-    # 最終状態が p < 0.0 になった場合には ステップ幅を細かくして続きからもう一度積分
+    # If the final state results in p < 0.0, reduce the step size and continue integration from the last point
     while sol[end][1] < 0.0
         zero_p_idx = searchsortedfirst([u[1] for u in sol.u[end:-1:1]], 0.0)
-        sol = sol[1:end-zero_p_idx+1]  # pressureが誤差範囲を超えて負の場合はそれより前の誤差範囲で正tominaseruの結果を最終状態としてとる.
-        u0 = [sol[end][1], sol[end][2], sol[end][3], sol[end][4]]  # 
+        sol = sol[1:end-zero_p_idx+1]  # If pressure becomes negative beyond error bounds, take the prior state as the final one
+        u0 = [sol[end][1], sol[end][2], sol[end][3], sol[end][4]]  
         tspan = (sol.t[end], Inf)
         dr /= 1e5
-        prob = ODEProblem(TOV_def!, u0, tspan, p)  # 刻み値を細かくしてもう一度積分
-        sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6) # maxiters=1e5 (default)
-        # println(sol[end][1]*unit_g*gcm3_to_MeVfm3)
+        prob = ODEProblem(TOV_def!, u0, tspan, p)  # Perform integration again with a finer step size
+        sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6)  # maxiters=1e5 (default)
     end
-    # 最終状態を取得
+
+    # Retrieve the final state
     final_state = sol[end]
     R = sol.t[end]
     M = final_state[2]
 
-    # calculation of the ε_surface by the linear interpolation.
+    # Calculate ε_surface using linear interpolation
     idx_surface = searchsortedfirst(pres, final_state[1])
     if idx_surface <= 1
         idx_surface = 2
     end
     ratio = (final_state[1] - pres[idx_surface-1])/(pres[idx_surface]-pres[idx_surface-1])
     ε_surface = (ratio*ε[idx_surface] + (1.0-ratio)*ε[idx_surface-1])
-    # println("effect of the nonzero ε at the surface: ",  (4.0*π*R^3*ε_surface/M)/(R*final_state[4]/final_state[3]))
     
-    # Tidal deformability の計算
-    y = R * final_state[4] / final_state[3] - 4.0*π*R^3*ε_surface/M  # if EoS has non-zero ε, the 2nd term of y is important!
+    # Calculate the tidal deformability
+    y = R * final_state[4] / final_state[3] - 4.0*π*R^3*ε_surface/M  # If EoS has non-zero ε, the second term of y is significant
     Λ = tidal_deformability(y, M, R)
     return [R*unit_l/1e5, M*unit_g/Msun, Λ], sol
 end
+
 
 end  # End of the SolverCode
