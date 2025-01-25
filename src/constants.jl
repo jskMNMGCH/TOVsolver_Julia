@@ -11,9 +11,8 @@ const Msun = 1.9884e33  # [g]
 const hbarc = 197.32698044404107 # [MeV fm]
 
 # normalization constants. Geometrized unit system!
-const unit_g = c^2/G
-const unit_l = 1.0
-const eps_ref = c^4/G
+const unit_l = 1.0  # [cm] in a geometrized unit system and CGS unit system
+const unit_g = c^2/G  # [g] in a geometrized unit sysytem, [g/cm] in CGS unit system
 
 # unit conversion factor
 const dyncm2_to_MeVfm3 = 1.0/(1.602176634e33)

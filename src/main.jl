@@ -37,7 +37,14 @@ function make_eos_monotonic(e, P)
     return mono_e, mono_P
 end
 
-function out_RMT(ε, pres; debug=false, min_pc=3.0*MeVfm3_to_gcm3/unit_g, max_pc=1.3e3*MeVfm3_to_gcm3/unit_g, num_pc=50)
+
+function out_RMT(ε, pres; 
+    debug::Bool=false, 
+    min_pc=3.0*MeVfm3_to_gcm3/unit_g, 
+    max_pc=1.3e3*MeVfm3_to_gcm3/unit_g, 
+    num_pc::Int=80, 
+    dr::Float64=1e2
+    )
 """ 
     This function calculates the radius, mass, and tidal deformability by solving the Tolman–Oppenheimer–Volkoff (TOV) equations for a given set of energy densities (`ε`) and pressures (`pres`).
     
@@ -73,19 +80,19 @@ function out_RMT(ε, pres; debug=false, min_pc=3.0*MeVfm3_to_gcm3/unit_g, max_pc
         end
         
         try
-            result, sol = SolverCode.solveTOV_RMT(i, ε, pres, debug_flag)
+            result, sol = SolverCode.solveTOV_RMT(i, ε, pres, debug_flag, max_dr=dr)
             R[j] = result[1]
             M[j] = result[2]
             Λ[j] = result[3]
             push!(sol_list, sol)
         catch e
-            println("Error at i = $i")
+            println("Error at j = $j: ", e)
         end
     end
     return [R, M, Λ], sol_list
 end
 
-function out_RMT_point(ε, pres, center_pres; debug=false)
+function out_RMT_point(ε, pres, center_pres::Float64; debug::Bool=false)
     i = searchsortedfirst(pres, center_pres)
     result, sol = SolverCode.solveTOV_RMT(i, ε, pres, debug)
     R = result[1]
@@ -112,9 +119,29 @@ function cs(energy_density, pressure)
     return energy_density[2:end], cs
 end
 
-function check_tidal_constraint(RMT)
+
+function cs2(energy_density, pressure)
 """
-    This function evaluates whether a given tidal deformability dataset (`RMT`) satisfies specified constraints based on astrophysical observations.
+    This function calculates the square of the speed of sound (c_s^2) for a given array of energy densities (`energy_density`) 
+    and pressures (`pressure`).
+
+    Args:
+        energy_density (array): Array of energy density values (ε) at discrete points.
+        pressure (array): Array of pressure values (P) corresponding to `energy_density`.
+
+    Returns:
+        Tuple: A tuple containing:
+            - `energy_density[2:end]` (1D array): Truncated array of energy densities, starting from the second element.
+            - `cs2` (1D array): Array of speed of sound values calculated using the formula: cs^2 = dp/dε.
+"""
+    cs2 = [(pressure[i]-pressure[i-1])/(energy_density[i]-energy_density[i-1]) for i in 2:length(pressure)]
+    return energy_density[2:end], cs2
+end
+
+
+function check_tidal_constraint(RMT; M_interval::Float64=1e-2)
+    """
+    This function checks if at least one tidal deformability value (`T`) at `M = 1.4` satisfies the specified constraint.
 
     Args:
         RMT (tuple or array): A data structure containing:
@@ -122,24 +149,33 @@ function check_tidal_constraint(RMT)
             - `RMT[3]` (array): Array of tidal deformability values corresponding to the masses in `RMT[2]`.
 
     Returns:
-        bool: Returns `true` if the tidal deformability constraint is satisfied; otherwise, `false`.
-"""
-    # Sort and find the index where values are less than or equal to 1.4
-    sorted_RMT = sort(RMT[2])
-    index_threshold = searchsortedlast(sorted_RMT, 1.4)
+        Bool: `true` if at least one value satisfies the constraint; otherwise, `false`.
+    """
+    # Sort masses and get sorting indices
+    sorted_indices = sortperm(RMT[2])  # Indices to sort RMT[2]
+    sorted_M = RMT[2][sorted_indices]
+    sorted_T = RMT[3][sorted_indices]  # Sort T accordingly
 
-    # Define the valid range for the tidal constraint (90% Confidence Interval)
+    # Define the valid range for tidal deformability (90% Confidence Interval)
     max_threshold = 190 + 390
     min_threshold = 190 - 120
 
-    # Check for edge cases where the index is invalid
-    if index_threshold < 1 || index_threshold > length(sorted_RMT)
+    # Find all indices where M is close to 1.4
+    indices_close = findall(x -> isapprox(x, 1.4; atol=M_interval), sorted_M)
+
+    # If no matching masses, return false
+    if isempty(indices_close)
         return false
     end
 
-    # Validate the tidal constraint against the specified range
-    constraint_value = RMT[3][end - index_threshold]
-    return min_threshold <= constraint_value <= max_threshold
+    # Check if any corresponding T value satisfies the constraint
+    for idx in indices_close
+        if min_threshold <= sorted_T[idx] <= max_threshold
+            return true  # At least one value satisfies the constraint
+        end
+    end
+
+    return false  # No value satisfies the constraint
 end
 
-end  # end of MainModule
+end  # End of the MainModule

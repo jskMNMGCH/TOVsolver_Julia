@@ -27,7 +27,7 @@ fixed_crust = [
     ("crust4", nothing, 1.35692, 3.99874e-8)
 ]
 
-fixed_ρ_bounds = [10^14.7, 10^15]
+fixed_ρ_bounds = [10^14.7, 1e15]
 
 # export fixed_crust, fixed_ρ_bounds
 
@@ -229,7 +229,7 @@ function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, fina
         rho_boundary = reduce(vcat, vs)
     end
     for i in 1:length(rho_boundary)-1
-        logrange_len = ceil(Int, (rho_boundary[i+1]-rho_boundary[i])/rho_boundary[i+1]*2^9)  # 少数点以下を切り上げて，　Intに変換
+        logrange_len = ceil(Int, (rho_boundary[i+1]-rho_boundary[i])/rho_boundary[i+1]*2.0^9)  # 少数点以下を切り上げて，Intに変換
         rho_piece = logrange(rho_boundary[i], rho_boundary[i+1], length=logrange_len)
         ε = vcat(ε, PiecePoly.eps_rho_def.(rho_piece, K_arr[i], Gamma_arr[i], a_arr[i]))
         p = vcat(p, PiecePoly.p_rho_def.(rho_piece, K_arr[i], Gamma_arr[i]))
@@ -237,4 +237,4 @@ function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, fina
     return ε, p
 end
 
-end # end of PiecePoly
+end # End of the PiecePoly

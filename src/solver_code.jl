@@ -1,7 +1,7 @@
 """
 This code is written in Geometrized unit system, where distances are expressed in centimeters [cm].
 If energy_density and pressure are given in [g/cm^3] unit, 
-the inputs shoulds be energy_density/unit_g and pressure/unit_g [1/cm^3].
+the inputs shoulds be energy_density/unit_g and pressure/unit_g [1/cm^2].
 """
 module SolverCode
 
@@ -73,10 +73,10 @@ function TOV_def!(du, u, p, t)
     
     idx_now = searchsortedfirst(Pres, pres)
     if idx_now >= length(Pres)
-        println("idx_end_point appears: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        println("idx_end_point appears: ", idx_now, ", Pressure: ", pres*unit_g*gcm3_to_MeVfm3, " [MeV/fm^3]")
         idx_now = length(Pres)-1
     elseif idx_now <= 1
-        println("idx_start_point appears: ", idx_now, ", Pressure: ", pres*eps_ref*gcm3_to_MeVfm3, " [MeV/fm^3]")
+        # println("idx_start_point appears: ", idx_now, ", Pressure: ", pres*unit_g*gcm3_to_MeVfm3, " [MeV/fm^3]")
         idx_now = 2
     end
     s = (pres - Pres[idx_now-1])/(Pres[idx_now]-Pres[idx_now-1])
@@ -84,7 +84,7 @@ function TOV_def!(du, u, p, t)
     f = (E[idx_now]-E[idx_now-1])/(Pres[idx_now]-Pres[idx_now-1]) # 後進差分でfが計算されることを前提に上2行で線形補完している. 
     # f = ()
     
-    dpdr = -(eps + pres) * (m + 4.0 * π * t^3 * pres) / (t*m *(t/m - 2.0))  # [cm^-3]
+    dpdr = -(eps + pres) * (m + 4.0 * π * t^3 * pres) / (t*m *(t/m - 2.0)) # [cm^-3]
     dmdr = 4.0 * π * t^2 * eps  # []
     dhdr = b  # [cm]
     dbdr = ( 2.0*(1.0-2.0*m/t)^-1*h*(-2.0*π*(5.0*eps + 9.0*pres + f*(eps+pres)) 
@@ -102,15 +102,15 @@ function TOV_def!(du, u, p, t)
 end
 
 
-function solveTOV_RMT(center_idx, ε, pres, debug_flag)
+function solveTOV_RMT(center_idx::Int, ε, pres, debug_flag::Bool; max_dr::Float64=1e2)
 """
     This function solves the Tolman–Oppenheimer–Volkoff (TOV) equations for a given central density and pressure 
     to calculate the radius, mass, and tidal deformability of a compact object. 
     The function iterates over a radial grid, solving the TOV equations numerically with an ODE solver and returns the radius, mass, and tidal deformability.
     Args:
         center_idx (int): The index in the density and pressure arrays, corresponding to the central density and pressure.
-        ε (array): Array of energy densities ([1/cm^2], [g/cm^3] is scaled by eps_ref [g/cm]).
-        pres (array): Array of pressures ([1/cm^2], [g/cm^3] is scaled by eps_ref [g/cm]).
+        ε (array): Array of energy densities ([1/cm^2], [g/cm^3] is scaled by unit_g [g/cm]).
+        pres (array): Array of pressures ([1/cm^2], [g/cm^3] is scaled by unit_g [g/cm]).
         debug_flag (bool): A flag to enable debugging output.
     Returns:
         Tuple:
@@ -120,13 +120,12 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
             - `sol` (array): The solution of the ODE at each step.
 """ 
     # set initial state and parameters
-    r = 10^-17/unit_l  # dimless length. initial radius.
-    dr = 100.0/unit_l  # step value
+    r = 1e-17  # [cm]
+    dr = max_dr  # step value
     dhdr = dr
     
     p0 = pres[center_idx]
-    p_surface = max(p0/10^12, pres[2]) # max で データより小さくならないようにするべき
-    # println("Pres at the surface ", p_surface)
+    p_surface = p0/1e12
     ε0 = ε[center_idx]
     m0 = 4.0/3.0*π*ε0*r^3
     h0 = r^2
@@ -144,6 +143,17 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
     # 数値積分を実行
     sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6) # maxiters=1e5 (default)
 
+    # 最終状態が p < 0.0 になった場合には ステップ幅を細かくして続きからもう一度積分
+    while sol[end][1] < 0.0
+        zero_p_idx = searchsortedfirst([u[1] for u in sol.u[end:-1:1]], 0.0)
+        sol = sol[1:end-zero_p_idx+1]  # pressureが誤差範囲を超えて負の場合はそれより前の誤差範囲で正tominaseruの結果を最終状態としてとる.
+        u0 = [sol[end][1], sol[end][2], sol[end][3], sol[end][4]]  # 
+        tspan = (sol.t[end], Inf)
+        dr /= 1e5
+        prob = ODEProblem(TOV_def!, u0, tspan, p)  # 刻み値を細かくしてもう一度積分
+        sol = solve(prob, DP5(); dt=dr, callback=cb, dtmax=dr, maxiters=1e6) # maxiters=1e5 (default)
+        # println(sol[end][1]*unit_g*gcm3_to_MeVfm3)
+    end
     # 最終状態を取得
     final_state = sol[end]
     R = sol.t[end]
@@ -161,7 +171,7 @@ function solveTOV_RMT(center_idx, ε, pres, debug_flag)
     # Tidal deformability の計算
     y = R * final_state[4] / final_state[3] - 4.0*π*R^3*ε_surface/M  # if EoS has non-zero ε, the 2nd term of y is important!
     Λ = tidal_deformability(y, M, R)
-    return [R*unit_l/10^5, M*unit_g/Msun, Λ], sol
+    return [R*unit_l/1e5, M*unit_g/Msun, Λ], sol
 end
 
-end  # end of SolverCode
+end  # End of the SolverCode
