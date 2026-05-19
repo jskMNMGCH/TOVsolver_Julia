@@ -87,9 +87,9 @@ function TOV_def!(du, u, p, t)
     dpdr = -(eps + pres) * (m + 4.0 * π * t^3 * pres) / (t*m *(t/m - 2.0)) # [cm^-3]
     dmdr = 4.0 * π * t^2 * eps  # []
     dhdr = b  # [cm]
-    dbdr = ( 2.0*(1.0-2.0*m/t)^-1*h*(-2.0*π*(5.0*eps + 9.0*pres + f*(eps+pres)) 
-        + 3.0/t^2 + 2.0*(1.0-2.0*m/t)^-1*(1/t^2)*(m/t + 4.0*π*t^2*pres)^2) 
-        + 2.0*b/t * (1.0-2.0*m/t)^-1*(-1.0 + m/t + 2.0*π*t^2*eps-pres) )# []
+    dbdr = ( 2.0*(1.0-2.0*m/t)^-1*h*(-2.0*π*(5.0*eps + 9.0*pres + f*(eps+pres)) +
+          3.0/t^2 + 2.0*(1.0-2.0*m/t)^-1*(1/t^2)*(m/t + 4.0*π*t^2*pres)^2) +
+          2.0*b/t * (1.0-2.0*m/t)^-1*(-1.0 + m/t + 2.0*π*t^2*(eps-pres)) )# []
 
     if debug_flag
         Debug([eps, pres, f])
