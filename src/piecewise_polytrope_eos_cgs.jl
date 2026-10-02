@@ -139,7 +139,7 @@ function param_of_innerEoS(log_p1, Gamma; param_c=fixed_crust, param_bound=fixed
     - Lists of density limits, `a` parameters, and polytropic constants for the inner EoS.
 """
     K1, rhob = calc_K1_rhob(log_p1, Gamma[1])
-    rho_lim_list = [rhob, param_bound[1], param_bound[2], Inf]
+    rho_lim_list = [rhob, param_bound[1], param_bound[2], 1e30]
     K_list = [K1]
     a_list = []
 
@@ -197,7 +197,7 @@ function get_all_params(log_p1, Gamma; p_c=fixed_crust)
     return rho_lim_all, a_all, K_all, Gamma_all
 end
 
-function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, final_rho=1e18)
+function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10.0, final_rho=1e17)
 """
     Function to create a piecewise polytropic equation of state (EoS).
     
@@ -229,7 +229,7 @@ function make_polyEos(rho_lim_arr, a_arr, K_arr, Gamma_arr; initial_rho=10, fina
         rho_boundary = reduce(vcat, vs)
     end
     for i in 1:length(rho_boundary)-1
-        logrange_len = ceil(Int, (rho_boundary[i+1]-rho_boundary[i])/rho_boundary[i+1]*2.0^9)  # 少数点以下を切り上げて，Intに変換
+        logrange_len = ceil(Int, (rho_boundary[i+1]-rho_boundary[i])/rho_boundary[i+1]*1e4)  # 少数点以下を切り上げて，Intに変換
         rho_piece = logrange(rho_boundary[i], rho_boundary[i+1], length=logrange_len)
         ε = vcat(ε, PiecePoly.eps_rho_def.(rho_piece, K_arr[i], Gamma_arr[i], a_arr[i]))
         p = vcat(p, PiecePoly.p_rho_def.(rho_piece, K_arr[i], Gamma_arr[i]))

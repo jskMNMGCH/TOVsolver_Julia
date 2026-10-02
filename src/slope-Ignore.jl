@@ -27,11 +27,14 @@ function alpha_K_of_slope(ε_joint_id::Int, ε_cut::Float64, energy_density, pre
     return α, K
 end
 
-function eos_with_slope(id::Int, ε_cut::Float64, energy_density, pressure; num_eps_slope::Float64=2.0^9)
+function eos_with_slope(id::Int, ε_cut::Float64, energy_density, pressure)  # もともと 2.0^9
     α, K = alpha_K_of_slope(id, ε_cut, energy_density, pressure)
+    if α < 1.0
+        @warn ("alpha = $α")
+    end
     ε_joint = energy_density[id]
-    ε_slope_len = ceil(Int, (1-ε_cut/ε_joint)*num_eps_slope)
-    ε_slope_part = logrange(ε_cut, ε_joint, length=ε_slope_len)[1:end-1]
+    println("test")
+    ε_slope_part = logrange(ε_cut, ε_joint, length=1<<22)[1:end-1]
     p_slope_part = K.*(ε_slope_part.-ε_cut).^α
     whole_ε = vcat(ε_slope_part, energy_density[id:end])
     whole_p = vcat(p_slope_part, pressure[id:end])

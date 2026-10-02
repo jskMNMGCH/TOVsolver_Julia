@@ -1,18 +1,19 @@
 """
 The 'main.jl' is written in Geometrized unit system, where distances are expressed in centimeters [cm].
 If energy_density and pressure are given in [g/cm^3] unit, 
-the inputs shoulds be energy_density/unit_g and pressure/unit_g [1/cm^3].
+the inputs shoulds be energy_density/unit_g and pressure/unit_g [1/cm^2].
 On the other hand, the 'piecewise_polytrope_eos_cgs.jl' is written in CGS unit.
 """
 # Physical constants
 const c = 2.99792458e10  # [cm/sec]
-const G = 6.67428e-8  # [cm^3 /(g sec^2)]
+const G = 6.67430e-8  # [cm^3 /(g sec^2)]
 const Msun = 1.9884e33  # [g]
 const hbarc = 197.32698044404107 # [MeV fm]
 
 # normalization constants. Geometrized unit system!
 const unit_l = 1.0  # [cm] in a geometrized unit system and CGS unit system
-const unit_g = c^2/G  # [g] in a geometrized unit sysytem, [g/cm] in CGS unit system
+const unit_g = c^2/G  # conversion factor from geometrized mass [cm] to CGS mass [g]
+const g_over_c = c^2/G   
 
 # unit conversion factor
 const dyncm2_to_MeVfm3 = 1.0/(1.602176634e33)
