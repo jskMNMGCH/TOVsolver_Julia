@@ -5,7 +5,7 @@
 This project provides a Julia implementation for solving the Tolman–Oppenheimer–Volkoff (TOV) equations.
 It uses equation of state (EoS) to model compact stars (e.g. neutron star, quark star) and calculates their mass, radius, and tidal deformability (cf. the [PiecewisePolytrope_test.ipynb](PiecewisePolytrope_test.ipynb)).
 Input EoS should be in the geometrized unit system, where distances are expressed in centimeters [cm].
-If the `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs of the `MainModule` should be `energy_density/unit_g` and `pressure/unit_g` [1/cm^3].
+If the `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs of the `MainModule` should be `energy_density/unit_g` and `pressure/unit_g` [1/cm^2].
 In addition, this project includes the Julia code to generate a piecewise polytrope EoS for a given parameters.
   
   ![Sample MR plots](fig/PiecewisePolys_MR.png)
@@ -17,7 +17,8 @@ In addition, this project includes the Julia code to generate a piecewise polytr
 - **Purpose**: Acts as the main entry point for calculations.
 - **Key Functions**:
   - `make_eos_monotonic(e, P)`: Processes energy density (`e`) and pressure (`P`) arrays to ensure monotonicity by removing non-physical regions.
-  - `out_RMT(ε, pres; ...)`: Solves the TOV equations to compute radius, mass, and tidal deformability for given energy densities  (`ε`) [1/cm^3] and pressures (`pres`) [1/cm^3].
+  - `out_RMT(ε, pres; ...)`: Solves the TOV equations to compute radius, mass, tidal deformability, and gravitomagnetic tidal Love number for given energy densities  (`ε`) [1/cm^2] and pressures (`pres`) [1/cm^2].
+    Returns `[R, M, Λ, k_mag]` and the ODE solutions (only when `keep_sol=true`; otherwise `nothing`). Set `parallel=true` to use multiple threads.
 - **Dependencies**: 
   - `solver_code.jl` for solving the TOV equations.
 
@@ -26,9 +27,10 @@ In addition, this project includes the Julia code to generate a piecewise polytr
 - **Key Functions**:
   - `Debug(input_list; base_filename)`: Logs data for debugging.
   - `tidal_deformability(y, M, R)`: Computes tidal deformability given dimensionless compactness and stellar properties.
-  - `solveTOV_RMT(center_idx, ε, pres, debug_flag)`: Solves the TOV equations for a given central density [1/cm^3] and pressure [1/cm^3] using an ODE solver.
+  - `gravitomag_tidal_deformability(Kap, M, R, l)`: Computes the irrotational gravitomagnetic tidal Love number $\tilde{k}_{\rm mag}$ in the convention of Landry & Poisson ($k_{\rm mag} = (2M/R)\,\tilde{k}_{\rm mag}$).
+  - `solveTOV_RMT(center_idx, ε, pres, debug_flag)`: Solves the TOV equations for a given central density [1/cm^2] and pressure [1/cm^2] using an ODE solver.
   - `TOV_def!(...)`: Defines the TOV differential equations.
-- **Dependencies**: Relies on `DifferentialEquations.jl` for ODE solving.
+- **Dependencies**: Relies on `DifferentialEquations.jl` for ODE solving and `HypergeometricFunctions.jl` for $k_{\rm mag}$.
 
 ### 3. `piecewise_polytrope_eos_cgs.jl`
 - **Purpose**: Implements the piecewise polytropic EoS framework in the CGS unit system!
@@ -45,11 +47,12 @@ In addition, this project includes the Julia code to generate a piecewise polytr
 ## Usage
 
 ### Prerequisites
-- Julia version 1.6 or higher.
-- Install required Julia packages:
+- Julia version 1.11 or higher (`logrange` in `Base` is required).
+- Install required Julia packages (listed in `Project.toml`) from the repository root:
   ```julia
   using Pkg
-  Pkg.add(["DifferentialEquations", "Dates"])
+  Pkg.activate(".")
+  Pkg.instantiate()
   ```
 
 ### Running the Code
@@ -64,7 +67,7 @@ In addition, this project includes the Julia code to generate a piecewise polytr
    ```
    ![Sample EoS](fig/KF_EoS.png)
 3. Call `out_RMT` to calculate stellar properties (This input EoS should be in geometrized unit system, where distances are expressed in centimeters [cm]).
-   If `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs should be `energy_density/unit_g` and `pressure/unit_g [1/cm^3]`:
+   If `energy_density` and `pressure` are given in [g/cm^3] unit, the inputs should be `energy_density/unit_g` and `pressure/unit_g [1/cm^2]`:
    ```julia
    RMT, solution = MainModule.out_RMT(energy_density/unit_g, pressure/unit_g)
    ```
